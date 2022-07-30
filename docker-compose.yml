@@ -27,7 +27,7 @@ services:
 #      - VPNSP=private internet access
        - VPNSP=mullvad
        - VPN_TYPE=openvpn
-       - OPENVPN_USER=
+       - OPENVPN_USER=${MULLVAD_USER}
        - OPENVPN_PASSWORD=m
        - TZ=${TIMEZONE}
     restart: unless-stopped
