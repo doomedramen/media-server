@@ -3,33 +3,32 @@ services:
   gluetun:
     image: qmcgaw/gluetun
     container_name: gluetun
+    network_mode: bridge
     cap_add:
       - NET_ADMIN
-    network_mode: bridge
+    devices:
+      - /dev/net/tun:/dev/net/tun
     ports:
       - 8888:8888/tcp # HTTP proxy
       - 8388:8388/tcp # Shadowsocks
       - 8388:8388/udp # Shadowsocks
-      - 8000:8000/tcp # Built-in HTTP control server
+      - 7540:7540/tcp # Built-in HTTP control server
 # other containers ports
       - 8112:8112     # deluge webui
       - 58846:58846   # deluge daemon
-      - 6767:6767     # bazarr
-      - 8989:8989     # sonarr
-      - 7878:7878     # radarr
-      - 8686:8686     # lidarr
       - 9117:9117     # jackett
-      - 8096:8096     # jellyfin
+      - 8191:8191     # flaresolverr
     volumes:
       - ${CONFIG_ROOT}/Gluetun:/gluetun
       - ${CONFIG_ROOT}/Gluetun/port_forward:/tmp/gluetun/forwarded_port
     environment:
-#      - VPNSP=private internet access
        - VPNSP=mullvad
        - VPN_TYPE=openvpn
        - OPENVPN_USER=${MULLVAD_USER}
        - OPENVPN_PASSWORD=m
        - TZ=${TIMEZONE}
+       - COUNTRY=UK
+       - CITY=London
     restart: unless-stopped
 
 
@@ -45,7 +44,7 @@ services:
       - ${CONFIG_ROOT}/Deluge:/config
       - ${DOWNLOADS_ROOT}:/downloads
 #      - /shares/media:/media
-    network_mode: "service:gluetun"
+    network_mode: service:gluetun
     restart: unless-stopped
     depends_on:
       - gluetun
@@ -60,32 +59,28 @@ services:
     volumes:
       - ${CONFIG_ROOT}/Jackett:/config
       - ${DOWNLOADS_ROOT}:/downloads
-    network_mode: "service:gluetun"
+    network_mode: service:gluetun
     restart: unless-stopped
     depends_on:
       - gluetun
       - flaresolverr
-
-  lidarr:
-    image: linuxserver/lidarr
-    container_name: lidarr
+      
+  flaresolverr:
+    container_name: flaresolverr
+    image: 'ghcr.io/flaresolverr/flaresolverr:latest'
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=${TIMEZONE}
-    volumes:
-      - ${CONFIG_ROOT}/Lidarr:/config
-      - ${MEDIA_ROOT}:/media
-    network_mode: "service:gluetun"
+      - LOG_LEVEL=info
+    network_mode: service:gluetun
     restart: unless-stopped
     depends_on:
       - gluetun
-      - jackett
-      - deluge
 
   radarr:
     image: linuxserver/radarr
     container_name: radarr
+    network_mode: bridge
+    ports:
+      - 7878:7878/tcp     # radarr
     environment:
       - PUID=1000
       - PGID=1000
@@ -93,7 +88,6 @@ services:
     volumes:
       - ${CONFIG_ROOT}/Radarr:/config
       - ${MEDIA_ROOT}:/media
-    network_mode: "service:gluetun"
     restart: unless-stopped
     depends_on:
       - gluetun
@@ -103,6 +97,9 @@ services:
   sonarr:
     image: linuxserver/sonarr:preview
     container_name: sonarr
+    network_mode: bridge
+    ports:
+      - 8989:8989/tcp     # sonarr
     environment:
       - PUID=1000
       - PGID=1000
@@ -110,7 +107,6 @@ services:
     volumes:
       - ${CONFIG_ROOT}/Sonarr:/config
       - ${MEDIA_ROOT}:/media
-    network_mode: "service:gluetun"
     restart: unless-stopped
     depends_on:
       - gluetun
@@ -120,6 +116,9 @@ services:
   bazarr:
     image: linuxserver/bazarr
     container_name: bazarr
+    network_mode: bridge
+    ports:
+      - 6767:6767/tcp     # bazarr
     environment:
       - PUID=1000
       - PGID=1000
@@ -127,7 +126,6 @@ services:
     volumes:
       - ${CONFIG_ROOT}/Bazarr:/config
       - ${MEDIA_ROOT}:/media
-    network_mode: "service:gluetun"
     restart: unless-stopped
     depends_on:
       - gluetun
@@ -137,6 +135,9 @@ services:
   jellyfin:
     image: linuxserver/jellyfin
     container_name: jellyfin
+    network_mode: bridge
+    ports:
+      - 8096:8096/tcp     # jellyfin
     environment:
       - PUID=1000
       - PGID=1000
@@ -144,11 +145,5 @@ services:
     volumes:
       - ${CONFIG_ROOT}/Jellyfin:/config
       - ${MEDIA_ROOT}:/media
-#      - /shares/Dokumenty:/mnt/Dokumenty
-#    devices:
-#      - /dev/dri/renderD128:/dev/dri/renderD128
-#    network_mode: "host"
-    network_mode: "service:gluetun"
+
     restart: unless-stopped
-    depends_on:
-      - gluetun
