@@ -1,0 +1,154 @@
+version: '3.7'
+services:
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    network_mode: bridge
+    ports:
+      - 8888:8888/tcp # HTTP proxy
+      - 8388:8388/tcp # Shadowsocks
+      - 8388:8388/udp # Shadowsocks
+      - 8000:8000/tcp # Built-in HTTP control server
+# other containers ports
+      - 8112:8112     # deluge webui
+      - 58846:58846   # deluge daemon
+      - 6767:6767     # bazarr
+      - 8989:8989     # sonarr
+      - 7878:7878     # radarr
+      - 8686:8686     # lidarr
+      - 9117:9117     # jackett
+      - 8096:8096     # jellyfin
+    volumes:
+      - ${CONFIG_ROOT}/Gluetun:/gluetun
+      - ${CONFIG_ROOT}/Gluetun/port_forward:/tmp/gluetun/forwarded_port
+    environment:
+#      - VPNSP=private internet access
+       - VPNSP=mullvad
+       - VPN_TYPE=openvpn
+       - OPENVPN_USER=
+       - OPENVPN_PASSWORD=m
+       - TZ=${TIMEZONE}
+    restart: unless-stopped
+
+
+  deluge:
+    image: linuxserver/deluge
+    container_name: deluge
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+      - DELUGE_LOGLEVEL=INFO #optional
+    volumes:
+      - ${CONFIG_ROOT}/Deluge:/config
+      - ${DOWNLOADS_ROOT}:/downloads
+#      - /shares/media:/media
+    network_mode: "service:gluetun"
+    restart: unless-stopped
+    depends_on:
+      - gluetun
+
+  jackett:
+    image: linuxserver/jackett
+    container_name: jackett
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_ROOT}/Jackett:/config
+      - ${DOWNLOADS_ROOT}:/downloads
+    network_mode: "service:gluetun"
+    restart: unless-stopped
+    depends_on:
+      - gluetun
+      - flaresolverr
+
+  lidarr:
+    image: linuxserver/lidarr
+    container_name: lidarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_ROOT}/Lidarr:/config
+      - ${MEDIA_ROOT}:/media
+    network_mode: "service:gluetun"
+    restart: unless-stopped
+    depends_on:
+      - gluetun
+      - jackett
+      - deluge
+
+  radarr:
+    image: linuxserver/radarr
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_ROOT}/Radarr:/config
+      - ${MEDIA_ROOT}:/media
+    network_mode: "service:gluetun"
+    restart: unless-stopped
+    depends_on:
+      - gluetun
+      - jackett
+      - deluge
+
+  sonarr:
+    image: linuxserver/sonarr:preview
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_ROOT}/Sonarr:/config
+      - ${MEDIA_ROOT}:/media
+    network_mode: "service:gluetun"
+    restart: unless-stopped
+    depends_on:
+      - gluetun
+      - jackett
+      - deluge
+
+  bazarr:
+    image: linuxserver/bazarr
+    container_name: bazarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_ROOT}/Bazarr:/config
+      - ${MEDIA_ROOT}:/media
+    network_mode: "service:gluetun"
+    restart: unless-stopped
+    depends_on:
+      - gluetun
+      - sonarr
+      - radarr
+
+  jellyfin:
+    image: linuxserver/jellyfin
+    container_name: jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_ROOT}/Jellyfin:/config
+      - ${MEDIA_ROOT}:/media
+#      - /shares/Dokumenty:/mnt/Dokumenty
+#    devices:
+#      - /dev/dri/renderD128:/dev/dri/renderD128
+#    network_mode: "host"
+    network_mode: "service:gluetun"
+    restart: unless-stopped
+    depends_on:
+      - gluetun
