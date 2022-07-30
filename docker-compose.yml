@@ -65,6 +65,19 @@ services:
       - gluetun
       - flaresolverr
       
+      
+  jellyseerr:
+       image: fallenbagel/jellyseerr:latest
+       container_name: jellyseerr
+       environment:
+            - LOG_LEVEL=debug
+            - TZ=${TIMEZONE}
+       ports:
+            - 5055:5055
+       volumes:
+            - ${CONFIG_ROOT}/Jellyseerr:/app/config
+       restart: unless-stopped
+      
   flaresolverr:
     container_name: flaresolverr
     image: 'ghcr.io/flaresolverr/flaresolverr:latest'
