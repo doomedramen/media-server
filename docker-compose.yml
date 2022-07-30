@@ -101,6 +101,7 @@ services:
     volumes:
       - ${CONFIG_ROOT}/Radarr:/config
       - ${MEDIA_ROOT}:/media
+      - ${DOWNLOADS_ROOT}:/downloads
     restart: unless-stopped
     depends_on:
       - gluetun
@@ -120,6 +121,7 @@ services:
     volumes:
       - ${CONFIG_ROOT}/Sonarr:/config
       - ${MEDIA_ROOT}:/media
+      - ${DOWNLOADS_ROOT}:/downloads
     restart: unless-stopped
     depends_on:
       - gluetun
@@ -139,6 +141,7 @@ services:
     volumes:
       - ${CONFIG_ROOT}/Bazarr:/config
       - ${MEDIA_ROOT}:/media
+      - ${DOWNLOADS_ROOT}:/downloads
     restart: unless-stopped
     depends_on:
       - gluetun
