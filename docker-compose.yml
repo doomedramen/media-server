@@ -108,7 +108,7 @@ services:
       - deluge
 
   sonarr:
-    image: linuxserver/sonarr:preview
+    image: linuxserver/sonarr
     container_name: sonarr
     network_mode: bridge
     ports:
