@@ -69,6 +69,7 @@ services:
   jellyseerr:
        image: fallenbagel/jellyseerr:latest
        container_name: jellyseerr
+       network_mode: bridge
        environment:
             - LOG_LEVEL=debug
             - TZ=${TIMEZONE}
@@ -127,6 +128,8 @@ services:
       - gluetun
       - jackett
       - deluge
+
+
 
   jellyfin:
     image: linuxserver/jellyfin
