@@ -128,26 +128,6 @@ services:
       - jackett
       - deluge
 
-  bazarr:
-    image: linuxserver/bazarr
-    container_name: bazarr
-    network_mode: bridge
-    ports:
-      - 6767:6767/tcp     # bazarr
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=${TIMEZONE}
-    volumes:
-      - ${CONFIG_ROOT}/Bazarr:/config
-      - ${MEDIA_ROOT}:/media
-      - ${DOWNLOADS_ROOT}:/downloads
-    restart: unless-stopped
-    depends_on:
-      - gluetun
-      - sonarr
-      - radarr
-
   jellyfin:
     image: linuxserver/jellyfin
     container_name: jellyfin
