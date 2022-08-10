@@ -1,4 +1,4 @@
-version: '4.0'
+version: '4.1'
 services:
   gluetun:
     image: qmcgaw/gluetun
@@ -148,6 +148,8 @@ services:
     image: lscr.io/linuxserver/plex:latest
     container_name: plex
     network_mode: bridge
+    ports:
+      - 32400:32400/tcp
     environment:
       - PUID=1000
       - PGID=1000
