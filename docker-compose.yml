@@ -1,4 +1,4 @@
-version: '3.7'
+version: '4.0'
 services:
   gluetun:
     image: qmcgaw/gluetun
@@ -65,7 +65,7 @@ services:
       - gluetun
       - flaresolverr
       
-      
+
   jellyseerr:
        image: fallenbagel/jellyseerr:latest
        container_name: jellyseerr
@@ -129,8 +129,6 @@ services:
       - jackett
       - deluge
 
-
-
   jellyfin:
     image: linuxserver/jellyfin
     container_name: jellyfin
@@ -144,5 +142,18 @@ services:
     volumes:
       - ${CONFIG_ROOT}/Jellyfin:/config
       - ${MEDIA_ROOT}:/media
+    restart: unless-stopped
 
+  plex:
+    image: lscr.io/linuxserver/plex:latest
+    container_name: plex
+    network_mode: bridge
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - VERSION=docker
+ #     - PLEX_CLAIM= #optional
+    volumes:
+      - ${CONFIG_ROOT}/Plex:/config
+      - ${MEDIA_ROOT}:/media
     restart: unless-stopped
