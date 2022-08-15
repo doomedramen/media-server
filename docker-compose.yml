@@ -1,4 +1,4 @@
-version: '4.1'
+version: '3.7'
 services:
   gluetun:
     image: qmcgaw/gluetun
@@ -159,3 +159,14 @@ services:
       - ${CONFIG_ROOT}/Plex:/config
       - ${MEDIA_ROOT}:/media
     restart: unless-stopped
+  homebridge:
+    image: oznu/homebridge:latest
+    restart: unless-stopped
+    network_mode: bridge
+    volumes:
+      - ${CONFIG_ROOT}/homebridge:/homebridge
+    logging:
+      driver: json-file
+      options:
+        max-size: 10mb
+        max-file: 1
