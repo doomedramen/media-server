@@ -144,25 +144,17 @@ services:
       - ${MEDIA_ROOT}:/media
     restart: unless-stopped
 
-  plex:
-    image: lscr.io/linuxserver/plex:latest
-    container_name: plex
+  homebridge:
+    image: oznu/homebridge:latest
+    container_name: homebridge
+    restart: unless-stopped
     network_mode: bridge
     ports:
-      - 32400:32400/tcp
+      - 8581:8581/tcp
     environment:
       - PUID=1000
       - PGID=1000
-      - VERSION=docker
- #     - PLEX_CLAIM= #optional
-    volumes:
-      - ${CONFIG_ROOT}/Plex:/config
-      - ${MEDIA_ROOT}:/media
-    restart: unless-stopped
-  homebridge:
-    image: oznu/homebridge:latest
-    restart: unless-stopped
-    network_mode: bridge
+      - TZ=${TIMEZONE}
     volumes:
       - ${CONFIG_ROOT}/homebridge:/homebridge
     logging:
