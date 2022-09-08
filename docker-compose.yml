@@ -1,7 +1,27 @@
 version: '3.7'
 services:
+  heimdall:
+    image: lscr.io/linuxserver/heimdall:latest
+    container_name: heimdall
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_ROOT}/Heimdall:/config
+    ports:
+      - 80:80
+      - 443:443
+    restart: unless-stopped
+    healthcheck:
+      test: curl --fail http://localhost || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
+      
   gluetun:
-    image: qmcgaw/gluetun
+    image: qmcgaw/gluetun:latest
     container_name: gluetun
     network_mode: bridge
     cap_add:
@@ -30,10 +50,15 @@ services:
        - COUNTRY=UK
        - CITY=London
     restart: unless-stopped
-
+    healthcheck:
+      test: /gluetun-entrypoint healthcheck
+      interval: 5s
+      retries: 1
+      start_period: 10s
+      timeout: 5s
 
   deluge:
-    image: linuxserver/deluge
+    image: linuxserver/deluge:latest
     container_name: deluge
     environment:
       - PUID=1000
@@ -43,14 +68,19 @@ services:
     volumes:
       - ${CONFIG_ROOT}/Deluge:/config
       - ${DOWNLOADS_ROOT}:/downloads
-#      - /shares/media:/media
     network_mode: service:gluetun
     restart: unless-stopped
     depends_on:
       - gluetun
+    healthcheck:
+      test: curl --fail http://localhost:8112 || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
 
   jackett:
-    image: linuxserver/jackett
+    image: linuxserver/jackett:latest
     container_name: jackett
     environment:
       - PUID=1000
@@ -64,7 +94,12 @@ services:
     depends_on:
       - gluetun
       - flaresolverr
-      
+    healthcheck:
+      test: curl --fail http://localhost:9117 || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
 
   jellyseerr:
        image: fallenbagel/jellyseerr:latest
@@ -78,19 +113,31 @@ services:
        volumes:
             - ${CONFIG_ROOT}/Jellyseerr:/app/config
        restart: unless-stopped
+       healthcheck:
+         test: wget --no-verbose --tries=1 --spider http://localhost:5055 || exit 1
+         interval: 60s
+         retries: 5
+         start_period: 20s
+         timeout: 10s
       
   flaresolverr:
     container_name: flaresolverr
-    image: 'ghcr.io/flaresolverr/flaresolverr:latest'
+    image: ghcr.io/flaresolverr/flaresolverr:latest
     environment:
       - LOG_LEVEL=info
     network_mode: service:gluetun
     restart: unless-stopped
     depends_on:
       - gluetun
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055 || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
 
   radarr:
-    image: linuxserver/radarr
+    image: linuxserver/radarr:latest
     container_name: radarr
     network_mode: bridge
     ports:
@@ -108,9 +155,15 @@ services:
       - gluetun
       - jackett
       - deluge
+    healthcheck:
+      test: curl --fail http://localhost:7878 || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
 
   sonarr:
-    image: linuxserver/sonarr
+    image: linuxserver/sonarr:latest
     container_name: sonarr
     network_mode: bridge
     ports:
@@ -128,9 +181,15 @@ services:
       - gluetun
       - jackett
       - deluge
+    healthcheck:
+      test: curl --fail http://localhost:8989 || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
 
   jellyfin:
-    image: linuxserver/jellyfin
+    image: linuxserver/jellyfin:latest
     container_name: jellyfin
     network_mode: bridge
     ports:
@@ -143,12 +202,18 @@ services:
       - ${CONFIG_ROOT}/Jellyfin:/config
       - ${MEDIA_ROOT}:/media
     restart: unless-stopped
+    healthcheck:
+      test: curl --fail http://localhost:8096 || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
 
   homebridge:
     image: oznu/homebridge:latest
     container_name: homebridge
     restart: unless-stopped
-    network_mode: bridge
+    network_mode: host
     ports:
       - 8581:8581/tcp
     environment:
@@ -162,3 +227,9 @@ services:
       options:
         max-size: 10mb
         max-file: 1
+    healthcheck:
+      test: curl --fail http://localhost:8581 || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
