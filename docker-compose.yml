@@ -1,5 +1,13 @@
-version: '3.7'
+version: '3.8'
 services:
+  #watchtower:
+  #  image: containrrr/watchtower
+  #  container_name: watchtower
+  #  volumes:
+  #    - /var/run/docker.sock:/var/run/docker.sock
+  #    - /root/.docker/config.json:/config.json
+  #  command: --interval 30
+
   heimdall:
     image: lscr.io/linuxserver/heimdall:latest
     container_name: heimdall
