@@ -37,142 +37,134 @@ services:
       start_period: 10s
       timeout: 5s
 
-  #deluge:
-  #  image: linuxserver/deluge:latest
-  #  container_name: deluge
-  #  environment:
-  #    - PUID=1000
-  #    - PGID=1000
-  #    - TZ=${TIMEZONE}
-  #    - DELUGE_LOGLEVEL=INFO #optional
-  #  volumes:
-  #    - ${CONFIG_ROOT}/Deluge:/config
-  #    - ${DOWNLOADS_ROOT}:/downloads
-  #  network_mode: service:gluetun
-  #  restart: always
-  #  depends_on:
-  #    gluetun:
-  #      condition: service_healthy
-  #  healthcheck:
-  #    test: curl --fail http://localhost:8112 || exit 1
-  #    interval: 60s
-  #    retries: 5
-  #    start_period: 20s
-  #    timeout: 10s
+  deluge:
+    image: linuxserver/deluge:latest
+    container_name: deluge
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+      - DELUGE_LOGLEVEL=INFO #optional
+    volumes:
+      - ${CONFIG_ROOT}/Deluge:/config
+      - ${DOWNLOADS_ROOT}:/downloads
+    network_mode: service:gluetun
+    restart: always
+    depends_on:
+      - gluetun
+    healthcheck:
+      test: curl --fail http://localhost:8112 || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
 
-  #flaresolverr:
-  #  container_name: flaresolverr
-  #  image: ghcr.io/flaresolverr/flaresolverr:latest
-  #  environment:
-  #    - LOG_LEVEL=info
-  #  network_mode: service:gluetun
-  #  restart: always
-  #  depends_on:
-  #    gluetun:
-  #      condition: service_healthy
-  #  healthcheck:
-  #    test: wget --no-verbose --tries=1 --spider http://localhost:8191 || exit 1
-  #    interval: 60s
-  #    retries: 5
-  #    start_period: 20s
-  #    timeout: 10s
+  flaresolverr:
+    container_name: flaresolverr
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    environment:
+      - LOG_LEVEL=info
+    network_mode: service:gluetun
+    restart: always
+    - depends_on
+      gluetun:
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8191 || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
 
-  #jackett:
-  #  image: linuxserver/jackett:latest
-  #  container_name: jackett
-  #  environment:
-  #    - PUID=1000
-  #    - PGID=1000
-  #    - TZ=${TIMEZONE}
-  #  volumes:
-  #    - ${CONFIG_ROOT}/Jackett:/config
-  #    - ${DOWNLOADS_ROOT}:/downloads
-  #  network_mode: service:gluetun
-  #  restart: always
-  #  depends_on:
-  #    gluetun:
-  #      condition: service_healthy
-  #    flaresolverr:
-  #      condition: service_healthy
-  #  healthcheck:
-  #    test: curl --fail http://localhost:9117/UI/Dashboard || exit 1
-  #    interval: 60s
-  #    retries: 5
-  #    start_period: 20s
-  #    timeout: 10s
+  jackett:
+    image: linuxserver/jackett:latest
+    container_name: jackett
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_ROOT}/Jackett:/config
+      - ${DOWNLOADS_ROOT}:/downloads
+    network_mode: service:gluetun
+    restart: always
+    depends_on:
+      - gluetun
+      - flaresolverr
+    healthcheck:
+      test: curl --fail http://localhost:9117/UI/Dashboard || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
 
-  #overseerr:
-  #  image: lscr.io/linuxserver/overseerr:latest
-  #  container_name: overseerr
-  #  network_mode: bridge
-  #  environment:
-  #    - LOG_LEVEL=debug
-  #    - TZ=${TIMEZONE}
-  #  ports:
-  #    - 5055:5055
-  #  volumes:
-  #    - ${CONFIG_ROOT}/Overseerr:/config
-  #  restart: always
-  #  healthcheck:
-  #    test: wget --no-verbose --tries=1 --spider http://localhost:5055 || exit 1
-  #    interval: 60s
-  #    retries: 5
-  #    start_period: 20s
-  #    timeout: 10s
+  overseerr:
+    image: lscr.io/linuxserver/overseerr:latest
+    container_name: overseerr
+    network_mode: bridge
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=${TIMEZONE}
+    ports:
+      - 5055:5055
+    volumes:
+      - ${CONFIG_ROOT}/Overseerr:/config
+    restart: always
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055 || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
 
-  #radarr:
-  #  image: linuxserver/radarr:latest
-  #  container_name: radarr
-  #  network_mode: bridge
-  #  ports:
-  #    - 7878:7878/tcp # radarr
-  #  environment:
-  #    - PUID=1000
-  #    - PGID=1000
-  #    - TZ=${TIMEZONE}
-  #  volumes:
-  #    - ${CONFIG_ROOT}/Radarr:/config
-  #    - ${MEDIA_ROOT}:/media
-  #    - ${DOWNLOADS_ROOT}:/downloads
-  #  restart: always
-  #  depends_on:
-  #    gluetun:
-  #      condition: service_healthy
-  #    jackett:
-  #      condition: service_healthy
-  #  healthcheck:
-  #    test: curl --fail http://localhost:7878 || exit 1
-  #    interval: 60s
-  #    retries: 5
-  #    start_period: 20s
-  #    timeout: 10s
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: radarr
+    network_mode: bridge
+    ports:
+      - 7878:7878/tcp # radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_ROOT}/Radarr:/config
+      - ${MEDIA_ROOT}:/media
+      - ${DOWNLOADS_ROOT}:/downloads
+    restart: always
+    depends_on:
+      - gluetun
+      - jackett
+    healthcheck:
+      test: curl --fail http://localhost:7878 || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
 
-  #sonarr:
-  #  image: linuxserver/sonarr:latest
-  #  container_name: sonarr
-  #  network_mode: bridge
-  #  ports:
-  #    - 8989:8989/tcp # sonarr
-  #  environment:
-  #    - PUID=1000
-  #    - PGID=1000
-  #    - TZ=${TIMEZONE}
-  #  volumes:
-  #    - ${CONFIG_ROOT}/Sonarr:/config
-  #    - ${MEDIA_ROOT}:/media
-  #    - ${DOWNLOADS_ROOT}:/downloads
-  #  restart: always
-  #  depends_on:
-  #    gluetun:
-  #      condition: service_healthy
-  #    jackett:
-  #      condition: service_healthy
-  #  healthcheck:
-  #    test: curl --fail http://localhost:8989 || exit 1
-  #    interval: 60s
-  #    retries: 5
-  #    start_period: 20s
-  #    timeout: 10s
+  sonarr:
+    image: linuxserver/sonarr:latest
+    container_name: sonarr
+    network_mode: bridge
+    ports:
+      - 8989:8989/tcp # sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_ROOT}/Sonarr:/config
+      - ${MEDIA_ROOT}:/media
+      - ${DOWNLOADS_ROOT}:/downloads
+    restart: always
+    depends_on:
+      - gluetun
+      - jackett
+    healthcheck:
+      test: curl --fail http://localhost:8989 || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
 
   plex:
     image: lscr.io/linuxserver/plex:latest
@@ -195,56 +187,47 @@ services:
       start_period: 20s
       timeout: 10s
 
-  #homebridge:
-  #  image: oznu/homebridge:latest
-  #  container_name: homebridge
-  #  restart: always
-  #  network_mode: host
-  #  ports:
-  #    - 8581:8581/tcp
-  #  environment:
-  #    - PUID=1000
-  #    - PGID=1000
-  #    - TZ=${TIMEZONE}
-  #  volumes:
-  #    - ${CONFIG_ROOT}/homebridge:/homebridge
-  #  logging:
-  #    driver: json-file
-  #    options:
-  #      max-size: 10mb
-  #      max-file: 1
-  #  healthcheck:
-  #    test: curl --fail http://localhost:8581 || exit 1
-  #    interval: 60s
-  #    retries: 5
-  #    start_period: 20s
-  #    timeout: 10s
+  homebridge:
+    image: oznu/homebridge:latest
+    container_name: homebridge
+    restart: always
+    network_mode: host
+    ports:
+      - 8581:8581/tcp
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_ROOT}/homebridge:/homebridge
+    logging:
+      driver: json-file
+      options:
+        max-size: 10mb
+        max-file: 1
+    healthcheck:
+      test: curl --fail http://localhost:8581 || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
 
-  #heimdall:
-  #  image: lscr.io/linuxserver/heimdall:latest
-  #  container_name: heimdall
-  #  environment:
-  #    - PUID=1000
-  #    - PGID=1000
-  #    - TZ=${TIMEZONE}
-  #  volumes:
-  #    - ${CONFIG_ROOT}/Heimdall:/config
-  #  ports:
-  #    - 80:80
-  #    - 443:443
-  #  restart: always
-  #  healthcheck:
-  #    test: curl --fail http://localhost || exit 1
-  #    interval: 60s
-  #    retries: 5
-  #    start_period: 20s
-  #    timeout: 10s
-      
-#  watchtower:
-#    image: containrrr/watchtower
-#    container_name: watchtower
-#    restart: unless-stopped
-#    volumes:
-#      - /var/run/docker.sock:/var/run/docker.sock
-#      - /root/.docker/config.json:/config.json
-#    command: --schedule "15 8 * * *"
+  heimdall:
+    image: lscr.io/linuxserver/heimdall:latest
+    container_name: heimdall
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_ROOT}/Heimdall:/config
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+    healthcheck:
+      test: curl --fail http://localhost || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
