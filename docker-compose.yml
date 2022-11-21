@@ -165,6 +165,9 @@ services:
       - ${CONFIG_ROOT}/Plex:/config
       - ${MEDIA_ROOT}/tv:/tv
       - ${MEDIA_ROOT}/movies:/movies
+    devices:
+      - /dev/dri:/dev/dri
+    privileged: true
     restart: always
     healthcheck:
       test: curl --fail http://192.168.4.108:32400/web/index.html || exit 1
@@ -236,3 +239,13 @@ services:
       retries: 5
       start_period: 20s
       timeout: 10s
+      
+      
+      
+  watchtower:
+    container_name: watchtower
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json
+    command: --interval 3600
