@@ -111,6 +111,31 @@ services:
       retries: 5
       start_period: 20s
       timeout: 10s
+      
+  # ----------------------------------------
+  # TRANSMISSION
+  # ----------------------------------------
+  transmission:
+    image: lscr.io/linuxserver/transmission:latest
+    container_name: transmission
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - TRANSMISSION_WEB_HOME=/flood-for-transmission/ #optional
+      #- USER=username #optional
+      #- PASS=password #optional
+      #- WHITELIST=iplist #optional
+      #- PEERPORT=peerport #optional
+      #- HOST_WHITELIST=dnsname list #optional
+    volumes:
+      - ${CONFIG_ROOT}/Transmission:/config
+      - ${DOWNLOADS_ROOT}:/downloads
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+    restart: unless-stopped
   
   # ----------------------------------------
   # RADARR
@@ -235,6 +260,26 @@ services:
       retries: 5
       start_period: 20s
       timeout: 10s
+      
+  # ----------------------------------------
+  # HOMEASSISTANT
+  # ----------------------------------------
+  homeassistant:
+    image: lscr.io/linuxserver/homeassistant:latest
+    container_name: homeassistant
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - ${CONFIG_ROOT}/HomeAssistant:/config
+      - /path/to/data:/config
+    ports:
+      - 8123:8123 #optional
+    #devices:
+      #- /path/to/device:/path/to/device #optional
+    restart: unless-stopped
   
   # ----------------------------------------
   # HOMEBRIDGE
@@ -287,6 +332,23 @@ services:
       retries: 5
       start_period: 20s
       timeout: 10s
+  
+  # ----------------------------------------
+  # DOZZLE
+  # ----------------------------------------
+  dozzle:
+    container_name: dozzle
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 9999:8080
+    healthcheck:
+      test: [ "CMD", "/dozzle", "healthcheck" ]
+      interval: 3s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
   
   # ----------------------------------------
   # WATCHTOWER
