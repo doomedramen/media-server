@@ -1,6 +1,12 @@
-version: "3.9"
+version: "4"
+
 services:
+
   gluetun:
+  
+    # ----------------------------------------
+    # GLUETUN
+    # ----------------------------------------
     image: qmcgaw/gluetun:latest
     container_name: gluetun
     network_mode: bridge
@@ -37,11 +43,12 @@ services:
       start_period: 10s
       timeout: 5s
       
-      
-
+  # ----------------------------------------
+  # FLARESOLVERR
+  # ----------------------------------------
   flaresolverr:
     container_name: flaresolverr
-    image: ghcr.io/flaresolverr/flaresolverr:v2.2.10
+    image: ghcr.io/flaresolverr/flaresolverr:latest
     environment:
       - LOG_LEVEL=info
     network_mode: service:gluetun
@@ -55,7 +62,9 @@ services:
       start_period: 20s
       timeout: 10s
       
-      
+  # ----------------------------------------
+  # JACKETT
+  # ----------------------------------------
   jackett:
     image: linuxserver/jackett:latest
     container_name: jackett
@@ -77,9 +86,10 @@ services:
       retries: 5
       start_period: 20s
       timeout: 10s
-      
-      
-      
+     
+  # ----------------------------------------
+  # DELUGE
+  # ----------------------------------------    
   deluge:
     image: linuxserver/deluge:latest
     container_name: deluge
@@ -101,8 +111,10 @@ services:
       retries: 5
       start_period: 20s
       timeout: 10s
-      
-      
+  
+  # ----------------------------------------
+  # RADARR
+  # ----------------------------------------
   radarr:
     image: linuxserver/radarr:latest
     container_name: radarr
@@ -128,6 +140,9 @@ services:
       start_period: 20s
       timeout: 10s
 
+  # ----------------------------------------
+  # SONARR
+  # ----------------------------------------
   sonarr:
     image: linuxserver/sonarr:latest
     container_name: sonarr
@@ -153,6 +168,29 @@ services:
       start_period: 20s
       timeout: 10s
   
+  # ----------------------------------------
+  # BAZARR
+  # ----------------------------------------
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    network_mode: bridge
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - ${CONFIG_ROOT}/Bazarr:/config
+      - ${MEDIA_ROOT}/tv:/tv
+      - ${MEDIA_ROOT}/movies:/movies
+      - ${MEDIA_ROOT}:/media
+    ports:
+      - 6767:6767
+    restart: always
+  
+  # ----------------------------------------
+  # PLEX
+  # ----------------------------------------
   plex:
     image: lscr.io/linuxserver/plex:latest
     container_name: plex
@@ -176,6 +214,9 @@ services:
       start_period: 20s
       timeout: 10s
       
+  # ----------------------------------------
+  # OVERSEERR
+  # ----------------------------------------
   overseerr:
     image: lscr.io/linuxserver/overseerr:latest
     container_name: overseerr
@@ -194,7 +235,10 @@ services:
       retries: 5
       start_period: 20s
       timeout: 10s
-      
+  
+  # ----------------------------------------
+  # HOMEBRIDGE
+  # ----------------------------------------
   homebridge:
     image: oznu/homebridge:latest
     container_name: homebridge
@@ -219,10 +263,14 @@ services:
       retries: 5
       start_period: 20s
       timeout: 10s
-      
+   
+  # ----------------------------------------
+  # HEIMDALL
+  # ----------------------------------------
   heimdall:
     image: lscr.io/linuxserver/heimdall:latest
     container_name: heimdall
+    network_mode: bridge
     environment:
       - PUID=1000
       - PGID=1000
@@ -230,8 +278,8 @@ services:
     volumes:
       - ${CONFIG_ROOT}/Heimdall:/config
     ports:
-      - 80:80
-      - 443:443
+      - 8080:80
+      - 8043:443
     restart: always
     healthcheck:
       test: curl --fail http://localhost || exit 1
@@ -239,13 +287,16 @@ services:
       retries: 5
       start_period: 20s
       timeout: 10s
-      
-      
-      
+  
+  # ----------------------------------------
+  # WATCHTOWER
+  # ----------------------------------------
   watchtower:
     container_name: watchtower
     image: containrrr/watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /root/.docker/config.json:/config.json
-    command: --interval 3600
+     
+    command: --schedule "0 0 3 * * ?" --cleanup
+
+
