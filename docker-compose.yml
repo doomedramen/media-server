@@ -144,7 +144,7 @@ services:
   # SONARR
   # ----------------------------------------
   sonarr:
-    image: linuxserver/sonarr:latest
+    image: linuxserver/sonarr:v4
     container_name: sonarr
     network_mode: bridge
     ports:
