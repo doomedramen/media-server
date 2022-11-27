@@ -274,7 +274,6 @@ services:
       - TZ=Europe/London
     volumes:
       - ${CONFIG_ROOT}/HomeAssistant:/config
-      - /path/to/data:/config
     ports:
       - 8123:8123 #optional
     #devices:
