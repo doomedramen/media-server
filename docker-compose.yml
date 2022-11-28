@@ -382,3 +382,4 @@ services:
 networks:
   discovery:
     name: discovery
+    external: true
