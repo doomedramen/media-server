@@ -9,10 +9,10 @@ services:
     image: pihole/pihole:latest
     # For DHCP it is recommended to remove these ports and instead add: network_mode: "host"
     ports:
-      - "953:53/tcp"
-      - "953:53/udp"
+      - "53:53/tcp"
+      - "53:53/udp"
      # - "67:67/udp" # Only required if you are using Pi-hole as your DHCP server
-      - "980:80/tcp"
+      - "80:80/tcp"
     environment:
       TZ: ${TIMEZONE}
       WEBPASSWORD: admin #'set a secure password here or it will be random'
@@ -320,8 +320,8 @@ services:
     volumes:
       - ${CONFIG_ROOT}/Heimdall:/config
     ports:
-      - 80:80
-      - 443:443
+      - 8080:80
+      - 8443:443
     restart: always
     healthcheck:
       test: curl --fail http://localhost || exit 1
