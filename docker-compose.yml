@@ -47,7 +47,7 @@ services:
     # Volumes store your data between container upgrades
     networks:
       mynetwork:
-        ipv4_address: 192.168.4.110
+        ipv4_address: 192.168.5.108
     volumes:
      # - './etc-pihole:/etc/pihole'
      # - './etc-dnsmasq.d:/etc/dnsmasq.d'
