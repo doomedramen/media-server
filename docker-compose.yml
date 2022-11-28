@@ -35,10 +35,10 @@ services:
       - "53:53/udp"
       - "5089:80/tcp"
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ: ${TIMEZONE}
-      - WEBPASSWORD: ${PIHOLE_PASSWORD}
+      PUID: 1000
+      PGID: 1000
+      TZ: ${TIMEZONE}
+      WEBPASSWORD: ${PIHOLE_PASSWORD}
     volumes:
       - ${CONFIG_ROOT}/pihole:/etc/pihole
       - ${CONFIG_ROOT}/dnsmasq.d:/etc/dnsmasq.d
