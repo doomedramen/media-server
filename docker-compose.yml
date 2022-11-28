@@ -2,7 +2,9 @@ version: "4"
 
 services:
 
-
+  # ----------------------------------------
+  # TRAEFIK
+  # ----------------------------------------
   traefik:
     container_name: traefik
     domainname: ${DOMAIN_NAME}
@@ -28,7 +30,9 @@ services:
       - ${SERVER_IP}
       - ${DNS_IP}
       
-      
+  # ----------------------------------------
+  # PIHOLE
+  # ----------------------------------------
   pihole:
     container_name: pihole
     domainname: ${DOMAIN_NAME}
