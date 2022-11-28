@@ -15,11 +15,11 @@ services:
       - "980:80/tcp"
     environment:
       TZ: ${TIMEZONE}
-      # WEBPASSWORD: 'set a secure password here or it will be random'
+      WEBPASSWORD: admin #'set a secure password here or it will be random'
     # Volumes store your data between container upgrades
     volumes:
       - '${CONFIG_ROOT}/Pihole:/etc/pihole'
-      - '${CONFIG_ROOT}/etc-dnsmasq.d:/etc/dnsmasq.d'
+      - '${CONFIG_ROOT}/dnsmasq.d:/etc/dnsmasq.d'
     #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
     cap_add:
       - CHOWN
