@@ -24,7 +24,7 @@ services:
     networks:
       - default
       - discovery
-      cap_add:
+    cap_add:
       - NET_ADMIN
     dns:
       - ${SERVER_IP}
