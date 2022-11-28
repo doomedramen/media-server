@@ -5,8 +5,8 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 192.168.4.0/16
-          gateway: 192.168.4.1
+        - subnet: 10.5.0.0/16
+          gateway: 10.5.0.1
           
 services:
 
@@ -30,7 +30,7 @@ services:
     #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
     networks:
       piholenet:
-        ipv4_address: 192.168.4.5
+        ipv4_address: 10.5.0.5
     cap_add:
       - NET_ADMIN # Required if you are using Pi-hole as your DHCP server, else not needed
     restart: unless-stopped
