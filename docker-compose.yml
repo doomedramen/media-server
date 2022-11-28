@@ -6,7 +6,6 @@ networks:
     ipam:
       config:
         - subnet: 192.168.4.108/24
-          gateway: 192.168.4.1
           
 services:
 
