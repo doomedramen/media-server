@@ -297,42 +297,24 @@ services:
       - 8267:8267 # Internal node port
       - 8268:8268 # Example extra node port
     environment:
-      - TZ=Europe/London
-      - PUID=${PUID}
-      - PGID=${PGID}
+      - TZ=${TIMEZONE}
+      - PUID=1000
+      - PGID=1000
       - UMASK_SET=002
-      - serverIP=0.0.0.0
+      - serverIP=192.168.4.2
       - serverPort=8266
       - webUIPort=8265
       - internalNode=true
       - nodeID=MyInternalNode
     volumes:
-      - /docker/tdarr/server:/app/server
-      - /docker/tdarr/configs:/app/configs
-      - /docker/tdarr/logs:/app/logs
-      - /media:/media
-      - /transcode_cache:/temp
-
-
-  tdarr-node:
-    container_name: tdarr-node
-    image: ghcr.io/haveagitgat/tdarr_node:latest
-    restart: unless-stopped
-    network_mode: service:tdarr
-    environment:
-      - TZ=${TIMEZONE}
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - UMASK_SET=002
-      - nodeID=MainNode
-      - serverIP=192.168.4.2
-      - serverPort=8266
-    volumes:
+      - ${CONFIG_ROOT}tdarr/server:/app/server
       - ${CONFIG_ROOT}/tdarr/configs:/app/configs
       - ${CONFIG_ROOT}/tdarr/logs:/app/logs
       - ${MEDIA_ROOT}:/media
-      - ${MEDIA_ROOT}/transcode_cache:/temp    
-  
+      - ${MEDIA_ROOT}/transcode_cache:/temp
+
+
+ 
   # ----------------------------------------
   # HOMEBRIDGE
   # ----------------------------------------
