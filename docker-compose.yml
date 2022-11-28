@@ -24,7 +24,28 @@ services:
       - "traefik.http.services.traefik-service.loadbalancer.server.port=8080"
     restart: unless-stopped
     
-
+  # ----------------------------------------
+  # PIHOLE
+  # ----------------------------------------  
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "5089:80/tcp"
+    environment:
+      TZ: ${TIMEZONE}
+      WEBPASSWORD: ${PIHOLE_PASSWORD}
+    volumes:
+      - ${CONFIG_ROOT}/pihole:/etc/pihole
+      - ${CONFIG_ROOT}/dnsmasq.d:/etc/dnsmasq.d
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pihole.rule=Host(`pihole.${DOMAIN_NAME}`)"
+      - "traefik.http.routers.pihole.service=pihole-service"
+      - "traefik.http.services.pihole-service.loadbalancer.server.port=80"
+    restart: unless-stopped
 
   
   
