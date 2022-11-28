@@ -2,11 +2,68 @@ version: "4"
 
 services:
 
-  gluetun:
+
+  traefik:
+    container_name: traefik
+    domainname: ${DOMAIN_NAME}
+    
+    image: traefik
+    restart: unless-stopped
+    # Note I opt to whitelist certain apps for exposure to traefik instead of auto discovery
+    # use `--docker.exposedbydefault=true` if you don't want to have to do this
+    command: "--web --docker --docker.domain=homedomain.lan --docker.exposedbydefault=false --logLevel=DEBUG"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /dev/null:/traefik.toml
+    networks:
+      - default
+      - discovery
+    dns:
+      - ${SERVER_IP}
+      - 192.168.1.1
+      
+      
+  pihole:
+    container_name: pihole
+    domainname: ${DOMAIN_NAME}
+    
+    image: diginc/pi-hole:debian
+    ports:
+      - '0.0.0.0:53:53/tcp'
+      - '0.0.0.0:53:53/udp'
+      - '0.0.0.0:67:67/udp'
+      - '0.0.0.0:8053:80/tcp'
+    volumes:
+    # run `touch ./pihole.log` first unless you like errors
+    #  - ./pihole.log:/var/log/pihole.log
+      - ./etc-pihole/:/etc/pihole/
+      - ./etc-dnsmasqd/:/etc/dnsmasq.d/
+    environment:
+      ServerIP: ${SERVER_IP}
+      PROXY_LOCATION: pihole
+      VIRTUAL_HOST: pihole.${DOMAIN_NAME}
+      VIRTUAL_PORT: 80
+      TZ: ${TIMEZONE}
+      # WEBPASSWORD:
+    restart: unless-stopped
+    labels:
+       # required when using --docker.exposedbydefault=false
+       - "traefik.enable=true"
+       # https://www.techjunktrunk.com/docker/2017/11/03/traefik-default-server-catch-all/
+       - "traefik.frontend.rule=HostRegexp:pihole.${DOMAIN_NAME},{catchall:.*}"
+       - "traefik.frontend.priority=1"
+       - "traefik.backend=pihole"
+       - "traefik.port=80"
+
   
-    # ----------------------------------------
-    # GLUETUN
-    # ----------------------------------------
+  # ----------------------------------------
+  # GLUETUN
+  # ----------------------------------------
+  gluetun:
     image: qmcgaw/gluetun:latest
     container_name: gluetun
     network_mode: bridge
@@ -293,8 +350,8 @@ services:
     volumes:
       - ${CONFIG_ROOT}/Heimdall:/config
     ports:
-      - 8080:80
-      - 8043:443
+      - 420:80
+      - 4243:443
     restart: always
     healthcheck:
       test: curl --fail http://localhost || exit 1
