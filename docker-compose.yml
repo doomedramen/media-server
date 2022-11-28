@@ -380,11 +380,11 @@ services:
     command: --schedule "0 0 3 * * ?" --cleanup
     
     
- networks:
+  networks:
   # Discovery is manually created to avoid forcing any order of docker-compose stack creation (`docker network create discovery`)
   # allows other compose files to be seen by proxy
   # Not required if you aren't using multiple docker-compose files...
-  discovery:
-    external: true
+    discovery:
+      external: true
 
 
