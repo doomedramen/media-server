@@ -1,9 +1,10 @@
 version: "4"
-
-          
+ 
 services:
 
-
+  # ----------------------------------------
+  # PIHOLE
+  # ----------------------------------------
   pihole:
     container_name: pihole
     image: pihole/pihole:latest
