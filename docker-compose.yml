@@ -1,11 +1,5 @@
 version: "4"
 
-#networks:
-#  piholenet:
-#    ipam:
-#      config:
-#        - subnet: 10.5.0.0/16
-#          gateway: 10.5.0.1
           
 services:
 
@@ -27,9 +21,6 @@ services:
       - '${CONFIG_ROOT}/Pihole:/etc/pihole'
       - '${CONFIG_ROOT}/etc-dnsmasq.d:/etc/dnsmasq.d'
     #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
-    networks:
-      piholenet:
-        ipv4_address: 10.5.0.5
     cap_add:
       - CHOWN
       - NET_BIND_SERVICE
