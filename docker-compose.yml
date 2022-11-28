@@ -2,11 +2,34 @@ version: "4"
 
 services:
 
-  gluetun:
+  # ----------------------------------------
+  # TRAEFIK
+  # ----------------------------------------
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    command:
+      - --api.insecure # webui
+      - --providers.docker
+      - --providers.docker.exposedbydefault=false # don't expose containers by default
+    ports:
+      - 80:80
+      - 8080:8080 # webui
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`${DOMAIN_NAME}`)"
+      - "traefik.http.routers.traefik.service=traefik-service"
+      - "traefik.http.services.traefik-service.loadbalancer.server.port=8080"
+    restart: unless-stopped
+
   
-    # ----------------------------------------
-    # GLUETUN
-    # ----------------------------------------
+  
+  # ----------------------------------------
+  # GLUETUN
+  # ----------------------------------------
+  gluetun:
     image: qmcgaw/gluetun:latest
     container_name: gluetun
     network_mode: bridge
