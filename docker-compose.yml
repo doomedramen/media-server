@@ -11,7 +11,7 @@ services:
     restart: unless-stopped
     # Note I opt to whitelist certain apps for exposure to traefik instead of auto discovery
     # use `--docker.exposedbydefault=true` if you don't want to have to do this
-    command: "--web --docker --docker.domain=homedomain.lan --docker.exposedbydefault=false --logLevel=DEBUG"
+    command: "--web --docker --docker.domain=${DOMAIN_NAME} --docker.exposedbydefault=false --logLevel=DEBUG"
     ports:
       - "80:80"
       - "443:443"
