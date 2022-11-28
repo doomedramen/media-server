@@ -316,8 +316,8 @@ services:
     volumes:
       - ${CONFIG_ROOT}/Heimdall:/config
     ports:
-      - 8080:80
-      - 8043:443
+      - 6980:80
+      - 6943:443
     restart: always
     healthcheck:
       test: curl --fail http://localhost || exit 1
