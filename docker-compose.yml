@@ -379,3 +379,6 @@ services:
      
     command: --schedule "0 0 3 * * ?" --cleanup
    
+networks:
+  discovery:
+    name: discovery
