@@ -1,12 +1,19 @@
 version: "4"
 
+networks:
+  pihole:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.4.108/24
+          gateway: 192.168.4.1
+          
 services:
-
-  gluetun:
   
-    # ----------------------------------------
-    # GLUETUN
-    # ----------------------------------------
+  # ----------------------------------------
+  # GLUETUN
+  # ----------------------------------------
+  gluetun:
     image: qmcgaw/gluetun:latest
     container_name: gluetun
     network_mode: bridge
