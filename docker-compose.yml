@@ -19,9 +19,32 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`${DOMAIN_NAME}`)"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN_NAME}`)"
       - "traefik.http.routers.traefik.service=traefik-service"
       - "traefik.http.services.traefik-service.loadbalancer.server.port=8080"
+    restart: unless-stopped
+    
+  # ----------------------------------------
+  # PIHOLE
+  # ----------------------------------------  
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "5089:80/tcp"
+    environment:
+      TZ: ${TIMEZONE}
+      WEBPASSWORD: ${PIHOLE_PASSWORD}
+    volumes:
+      - ${CONFIG_ROOT}/pihole:/etc/pihole
+      - ${CONFIG_ROOT}/dnsmasq.d:/etc/dnsmasq.d
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pihole.rule=Host(`pihole.${DOMAIN_NAME}`)"
+      - "traefik.http.routers.pihole.service=pihole-service"
+      - "traefik.http.services.pihole-service.loadbalancer.server.port=80"
     restart: unless-stopped
 
   
@@ -62,7 +85,7 @@ services:
       - TZ=${TIMEZONE}
       - COUNTRY=UK
       - CITY=London
-    restart: always
+    restart: unless-stopped
     healthcheck:
       test: /gluetun-entrypoint healthcheck
       interval: 5s
@@ -79,7 +102,7 @@ services:
     environment:
       - LOG_LEVEL=info
     network_mode: service:gluetun
-    restart: always
+    restart: unless-stopped
     depends_on:
       - gluetun
     healthcheck:
@@ -103,7 +126,7 @@ services:
       - ${CONFIG_ROOT}/Jackett:/config
       - ${DOWNLOADS_ROOT}:/downloads
     network_mode: service:gluetun
-    restart: always
+    restart: unless-stopped
     depends_on:
       - gluetun
       - flaresolverr
@@ -134,7 +157,7 @@ services:
       - ${CONFIG_ROOT}/Transmission:/config
       - ${DOWNLOADS_ROOT}:/downloads
     network_mode: service:gluetun
-    restart: always
+    restart: unless-stopped
     depends_on:
       - gluetun
     healthcheck:
@@ -161,7 +184,7 @@ services:
       - ${CONFIG_ROOT}/Radarr:/config
       - ${MEDIA_ROOT}:/media
       - ${DOWNLOADS_ROOT}:/downloads
-    restart: always
+    restart: unless-stopped
     depends_on:
       - gluetun
       - jackett
@@ -189,7 +212,7 @@ services:
       - ${CONFIG_ROOT}/Sonarr:/config
       - ${MEDIA_ROOT}:/media
       - ${DOWNLOADS_ROOT}:/downloads
-    restart: always
+    restart: unless-stopped
     depends_on:
       - gluetun
       - jackett
@@ -218,7 +241,7 @@ services:
       - ${MEDIA_ROOT}:/media
     ports:
       - 6767:6767
-    restart: always
+    restart: unless-stopped
     healthcheck:
       test: curl --fail http://localhost:6767 || exit 1
       interval: 60s
@@ -244,7 +267,7 @@ services:
     devices:
       - /dev/dri:/dev/dri
     privileged: true
-    restart: always
+    restart: unless-stopped
     healthcheck:
       test: curl --fail http://192.168.4.108:32400/web/index.html || exit 1
       interval: 60s
@@ -266,7 +289,7 @@ services:
       - 5055:5055
     volumes:
       - ${CONFIG_ROOT}/Overseerr:/config
-    restart: always
+    restart: unless-stopped
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:5055 || exit 1
       interval: 60s
@@ -280,7 +303,7 @@ services:
   homebridge:
     image: oznu/homebridge:latest
     container_name: homebridge
-    restart: always
+    restart: unless-stopped
     network_mode: host
     ports:
       - 8581:8581/tcp
@@ -318,7 +341,7 @@ services:
     ports:
       - 1337:80
       - 6943:443
-    restart: always
+    restart: unless-stopped
     healthcheck:
       test: curl --fail http://localhost || exit 1
       interval: 60s
